@@ -24,3 +24,80 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom input styling for better visibility */
+@layer components {
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply text-gray-600 placeholder-gray-400;
+    @apply focus:text-gray-900 focus:placeholder-gray-500;
+    @apply transition-colors duration-200;
+  }
+  
+  .input-field:focus {
+    @apply border-blue-500 shadow-sm;
+  }
+  
+  /* Specific styling for form inputs */
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  textarea {
+    @apply text-gray-900 placeholder-gray-500;
+  }
+  
+  input[type="text"]:focus,
+  input[type="tel"]:focus,
+  input[type="email"]:focus,
+  textarea:focus {
+    @apply text-gray-900 placeholder-gray-400;
+  }
+
+  /* Enhanced text contrast for better readability */
+  .text-high-contrast {
+    @apply text-gray-900;
+  }
+  
+  .text-medium-contrast {
+    @apply text-gray-700;
+  }
+  
+  .text-low-contrast {
+    @apply text-gray-600;
+  }
+  
+  /* Ensure all headings have high contrast */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-gray-900;
+  }
+  
+  /* Ensure all body text has good contrast */
+  p, span, div {
+    @apply text-gray-800;
+  }
+  
+  /* Ensure labels are readable */
+  label {
+    @apply text-gray-800 font-medium;
+  }
+  
+  /* Ensure table text is readable */
+  td, th {
+    @apply text-gray-800;
+  }
+  
+  /* Ensure button text is readable */
+  button {
+    @apply text-gray-800;
+  }
+  
+  /* Ensure link text is readable */
+  a {
+    @apply text-gray-800;
+  }
+  
+  /* Ensure placeholder text has good contrast */
+  ::placeholder {
+    @apply text-gray-500;
+  }
+}
