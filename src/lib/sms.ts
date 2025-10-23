@@ -1,4 +1,4 @@
-import { supabaseAdmin, SMSLog } from './supabase'
+import { supabaseAdmin } from './supabase'
 
 const USE_MOCK_SMS = process.env.USE_MOCK_SMS === 'true'
 
@@ -31,7 +31,7 @@ export class SMSService {
         return true
       } else {
         // TODO: Implement Twilio SMS sending
-        const twilio = require('twilio')
+        const { default: twilio } = await import('twilio')
         const client = twilio(
           process.env.TWILIO_ACCOUNT_SID,
           process.env.TWILIO_AUTH_TOKEN

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, getDay, startOfWeek } from 'date-fns'
+import { useState } from 'react'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, getDay } from 'date-fns'
 import { PTORequest } from '@/lib/supabase'
 
 interface CalendarProps {
@@ -22,7 +22,7 @@ export default function Calendar({ ptoRequests, onDateClick, showControls = true
   const firstDayOfWeek = getDay(monthStart)
   
   // Create empty cells for days before the month starts
-  const emptyCells = Array.from({ length: firstDayOfWeek }, (_, i) => null)
+  const emptyCells = Array.from({ length: firstDayOfWeek }, () => null)
   
   // Combine empty cells with actual days
   const calendarDays = [...emptyCells, ...daysInMonth]
