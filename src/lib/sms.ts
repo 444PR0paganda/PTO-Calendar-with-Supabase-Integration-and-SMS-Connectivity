@@ -1,9 +1,5 @@
 import { supabaseAdmin } from './supabase'
 
-// Temporarily hardcoded to false to bypass environment variable issue
-// TODO: Fix environment variable reading - should use: process.env.USE_MOCK_SMS?.toLowerCase() === 'true'
-const USE_MOCK_SMS = false
-
 export interface SMSMessage {
   to: string
   from: string
@@ -27,27 +23,20 @@ export class SMSService {
 
   async sendSMS(to: string, message: string): Promise<boolean> {
     try {
-      if (USE_MOCK_SMS) {
-        console.log(`📱 MOCK SMS to ${to}: ${message}`)
-        await this.logSMS('+1234567890', to, message, 'outbound')
-        return true
-      } else {
-        // TODO: Implement Twilio SMS sending
-        const { default: twilio } = await import('twilio')
-        const client = twilio(
-          process.env.TWILIO_ACCOUNT_SID,
-          process.env.TWILIO_AUTH_TOKEN
-        )
+      const { default: twilio } = await import('twilio')
+      const client = twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
+      )
 
-        await client.messages.create({
-          body: message,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: to
-        })
+      await client.messages.create({
+        body: message,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: to
+      })
 
-        await this.logSMS(process.env.TWILIO_PHONE_NUMBER!, to, message, 'outbound')
-        return true
-      }
+      await this.logSMS(process.env.TWILIO_PHONE_NUMBER!, to, message, 'outbound')
+      return true
     } catch (error) {
       console.error('Error sending SMS:', error)
       return false

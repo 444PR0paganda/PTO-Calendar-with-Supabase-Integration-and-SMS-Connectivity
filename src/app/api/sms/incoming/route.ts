@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    // Handle both Twilio webhook format and mock format
+    // Handle Twilio webhook format
     const fromNumber = body.From || body.from_number
     const messageBody = body.Body || body.message || body.body
 
@@ -83,27 +83,22 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle GET requests for testing
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
-  // VERSION CHECK: This timestamp confirms the latest code is running
-  const VERSION = '2025-01-20-hardcoded-false-v2'
-  const rawMockSMS = process.env.USE_MOCK_SMS
-  // HARDCODED TO FALSE - BYPASSING ENV VAR
-  const mockMode = false
-  
-  return NextResponse.json({ 
+  const response = NextResponse.json({ 
     message: 'SMS webhook endpoint is active',
-    version: VERSION,
-    mockMode: mockMode,
-    hardcoded: true,
-    note: 'HARDCODED TO FALSE - BYPASSING ENVIRONMENT VARIABLE',
-    debug: {
-      rawUSE_MOCK_SMS: rawMockSMS || 'undefined',
-      afterLowercase: rawMockSMS?.toLowerCase() || 'undefined',
-      hardcodedResult: false,
-      timestamp: new Date().toISOString()
-    },
+    mode: 'production',
+    twilioConfigured: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
     twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not configured',
-    hasTwilioCredentials: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
+    timestamp: new Date().toISOString()
   })
+  
+  // Force no caching
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
+  
+  return response
 }
 

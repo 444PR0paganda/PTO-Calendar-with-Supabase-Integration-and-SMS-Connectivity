@@ -146,8 +146,8 @@ export default function TestSMSPage() {
             <h3 className="font-semibold text-blue-800 mb-2">About This Test Tool:</h3>
             <p className="text-sm text-blue-700">
               This test interface simulates incoming SMS messages by directly calling the webhook endpoint.
-              It works with both mock and real Twilio SMS systems. Use this to test PTO request processing
-              without sending actual text messages. All activity is logged to the database.
+              Use this to test PTO request processing without sending actual text messages. All activity is logged to the database.
+              Note: Real SMS responses will still be sent to the test phone number.
             </p>
           </div>
         </div>
