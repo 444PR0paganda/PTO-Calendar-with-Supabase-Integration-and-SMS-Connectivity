@@ -1,6 +1,6 @@
 import { supabaseAdmin } from './supabase'
 
-const USE_MOCK_SMS = process.env.USE_MOCK_SMS === 'true'
+const USE_MOCK_SMS = process.env.USE_MOCK_SMS?.toLowerCase() === 'true'
 
 export interface SMSMessage {
   to: string
