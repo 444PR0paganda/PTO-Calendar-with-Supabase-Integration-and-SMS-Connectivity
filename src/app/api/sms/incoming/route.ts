@@ -84,9 +84,18 @@ export async function POST(request: NextRequest) {
 
 // Handle GET requests for testing
 export async function GET() {
+  const rawMockSMS = process.env.USE_MOCK_SMS
+  const mockMode = rawMockSMS?.toLowerCase() === 'true'
+  
   return NextResponse.json({ 
     message: 'SMS webhook endpoint is active',
-    mockMode: process.env.USE_MOCK_SMS?.toLowerCase() === 'true',
+    mockMode: mockMode,
+    debug: {
+      rawUSE_MOCK_SMS: rawMockSMS || 'undefined',
+      afterLowercase: rawMockSMS?.toLowerCase() || 'undefined',
+      comparison: `${rawMockSMS?.toLowerCase()} === 'true'`,
+      result: mockMode
+    },
     twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not configured',
     hasTwilioCredentials: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
   })
