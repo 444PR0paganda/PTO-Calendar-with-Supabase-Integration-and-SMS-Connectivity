@@ -84,19 +84,23 @@ export async function POST(request: NextRequest) {
 
 // Handle GET requests for testing
 export async function GET() {
+  // VERSION CHECK: This timestamp confirms the latest code is running
+  const VERSION = '2025-01-20-hardcoded-false-v2'
   const rawMockSMS = process.env.USE_MOCK_SMS
-  // Temporarily hardcoded to false to bypass environment variable issue
-  const mockMode = false // rawMockSMS?.toLowerCase() === 'true'
+  // HARDCODED TO FALSE - BYPASSING ENV VAR
+  const mockMode = false
   
   return NextResponse.json({ 
     message: 'SMS webhook endpoint is active',
+    version: VERSION,
     mockMode: mockMode,
-    note: 'Temporarily hardcoded to false - env var issue being investigated',
+    hardcoded: true,
+    note: 'HARDCODED TO FALSE - BYPASSING ENVIRONMENT VARIABLE',
     debug: {
       rawUSE_MOCK_SMS: rawMockSMS || 'undefined',
       afterLowercase: rawMockSMS?.toLowerCase() || 'undefined',
-      comparison: `${rawMockSMS?.toLowerCase()} === 'true'`,
-      hardcodedResult: false
+      hardcodedResult: false,
+      timestamp: new Date().toISOString()
     },
     twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not configured',
     hasTwilioCredentials: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
