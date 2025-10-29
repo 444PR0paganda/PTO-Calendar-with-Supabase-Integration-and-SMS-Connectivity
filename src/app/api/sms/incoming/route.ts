@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the incoming SMS
-    await smsService.logSMS(fromNumber, '+1234567890', messageBody, 'inbound')
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+1234567890'
+    await smsService.logSMS(fromNumber, twilioPhoneNumber, messageBody, 'inbound')
 
     // Find employee by phone number
     const { data: employee, error: employeeError } = await supabaseAdmin
@@ -85,7 +86,9 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({ 
     message: 'SMS webhook endpoint is active',
-    mockMode: process.env.USE_MOCK_SMS === 'true'
+    mockMode: process.env.USE_MOCK_SMS === 'true',
+    twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not configured',
+    hasTwilioCredentials: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
   })
 }
 

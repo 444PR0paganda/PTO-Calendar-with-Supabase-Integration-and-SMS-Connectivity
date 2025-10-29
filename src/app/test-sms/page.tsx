@@ -142,11 +142,12 @@ export default function TestSMSPage() {
             </ol>
           </div>
 
-          <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
-            <h3 className="font-semibold text-yellow-800 mb-2">Note:</h3>
-            <p className="text-sm text-yellow-700">
-              This is a mock SMS system. In production, this would be replaced with real Twilio SMS integration.
-              All SMS activity is logged to the console and database for testing purposes.
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-semibold text-blue-800 mb-2">About This Test Tool:</h3>
+            <p className="text-sm text-blue-700">
+              This test interface simulates incoming SMS messages by directly calling the webhook endpoint.
+              It works with both mock and real Twilio SMS systems. Use this to test PTO request processing
+              without sending actual text messages. All activity is logged to the database.
             </p>
           </div>
         </div>
