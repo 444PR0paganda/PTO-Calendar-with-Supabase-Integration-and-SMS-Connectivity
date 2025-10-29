@@ -1,6 +1,8 @@
 import { supabaseAdmin } from './supabase'
 
-const USE_MOCK_SMS = process.env.USE_MOCK_SMS?.toLowerCase() === 'true'
+// Temporarily hardcoded to false to bypass environment variable issue
+// TODO: Fix environment variable reading - should use: process.env.USE_MOCK_SMS?.toLowerCase() === 'true'
+const USE_MOCK_SMS = false
 
 export interface SMSMessage {
   to: string
