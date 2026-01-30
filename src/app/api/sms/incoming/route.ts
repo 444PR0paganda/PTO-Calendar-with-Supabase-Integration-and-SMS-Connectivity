@@ -4,13 +4,12 @@ import { smsService } from '@/lib/sms'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    
-    // Handle Twilio webhook format
-    const fromNumber = body.From || body.from_number
-    const messageBody = body.Body || body.message || body.body
+    const formData = await request.formData()
+    const fromNumber = formData.get('From')?.toString()
+    const messageBody = formData.get('Body')?.toString()
 
     if (!fromNumber || !messageBody) {
+      console.error('Missing From or Body in Twilio payload')
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
