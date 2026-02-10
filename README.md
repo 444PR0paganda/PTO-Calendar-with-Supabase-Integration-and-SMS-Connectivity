@@ -31,6 +31,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repo to GitHub (already done if you cloned from GitHub).
+2. Go to [vercel.com/new](https://vercel.com/new), import this repository, and deploy.
+3. In the Vercel project **Settings → Environment Variables**, add:
+   - `NEXT_PUBLIC_SUPABASE_URL` – your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` – Supabase anon key
+   - `SUPABASE_SERVICE_ROLE_KEY` – Supabase service role key
+   - `MANAGER_PASSWORD` – password for the Management dashboard
+   - `ADMIN_PASSWORD` – password for the Admin dashboard
+4. Redeploy (or wait for the next push) so the new env vars are applied.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Employees sign in at **Request time off** with their full name (as added in Admin). Managers and admins use the passwords you set above.
