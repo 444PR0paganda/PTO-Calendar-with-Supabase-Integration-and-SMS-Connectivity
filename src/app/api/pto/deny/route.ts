@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { smsService } from '@/lib/sms'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +9,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'PTO request ID is required' }, { status: 400 })
     }
 
-    // Get the PTO request with employee info
     const { data: ptoRequest, error: fetchError } = await supabaseAdmin
       .from('pto_requests')
       .select(`
@@ -28,7 +26,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'PTO request has already been processed' }, { status: 400 })
     }
 
-    // Update the PTO request status
     const { error: updateError } = await supabaseAdmin
       .from('pto_requests')
       .update({
@@ -43,16 +40,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to deny PTO request' }, { status: 500 })
     }
 
-    // Send SMS notification to employee
-    const employeeMessage = reason 
-      ? `Your PTO request for ${ptoRequest.start_date} to ${ptoRequest.end_date} has been DENIED. Reason: ${reason}`
-      : `Your PTO request for ${ptoRequest.start_date} to ${ptoRequest.end_date} has been DENIED. Please contact your manager for more information.`
-    
-    await smsService.sendSMS(ptoRequest.employee.phone_number, employeeMessage)
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'PTO request denied successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'PTO request denied successfully'
     })
 
   } catch (error) {

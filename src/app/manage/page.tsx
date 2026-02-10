@@ -5,9 +5,55 @@ import Calendar from '@/components/Calendar'
 import { PTORequest } from '@/lib/supabase'
 
 export default function ManagePage() {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null)
+  const [managerPassword, setManagerPassword] = useState('')
+  const [managerError, setManagerError] = useState('')
+  const [managerLoading, setManagerLoading] = useState(false)
   const [ptoRequests, setPtoRequests] = useState<PTORequest[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+
+  const checkManagerAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/manager/me')
+      setSignedIn(res.ok)
+    } catch {
+      setSignedIn(false)
+    }
+  }
+
+  useEffect(() => {
+    checkManagerAuth()
+  }, [])
+
+  const handleManagerSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setManagerError('')
+    setManagerLoading(true)
+    try {
+      const res = await fetch('/api/auth/manager/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: managerPassword })
+      })
+      if (res.ok) {
+        setSignedIn(true)
+        setManagerPassword('')
+      } else {
+        const data = await res.json()
+        setManagerError(data.error || 'Invalid password')
+      }
+    } catch {
+      setManagerError('Something went wrong')
+    } finally {
+      setManagerLoading(false)
+    }
+  }
+
+  const handleManagerSignOut = async () => {
+    await fetch('/api/auth/manager/signout', { method: 'POST' })
+    setSignedIn(false)
+  }
 
   const fetchPTORequests = async () => {
     try {
@@ -24,8 +70,8 @@ export default function ManagePage() {
   }
 
   useEffect(() => {
-    fetchPTORequests()
-  }, [])
+    if (signedIn) fetchPTORequests()
+  }, [signedIn])
 
   const handleApprove = async (ptoRequestId: string) => {
     setProcessing(ptoRequestId)
@@ -75,6 +121,43 @@ export default function ManagePage() {
 
   const pendingRequests = ptoRequests.filter(req => req.status === 'pending')
 
+  if (signedIn === null) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      </div>
+    )
+  }
+
+  if (!signedIn) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Management sign in</h1>
+          <p className="text-gray-600 text-sm mb-6">Enter the manager password to continue.</p>
+          <form onSubmit={handleManagerSignIn} className="space-y-4">
+            <input
+              type="password"
+              value={managerPassword}
+              onChange={(e) => setManagerPassword(e.target.value)}
+              className="input-field"
+              placeholder="Password"
+              required
+            />
+            {managerError && <p className="text-sm text-red-600">{managerError}</p>}
+            <button
+              type="submit"
+              disabled={managerLoading}
+              className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {managerLoading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -91,6 +174,15 @@ export default function ManagePage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
+          <div className="flex justify-end mb-2">
+            <button
+              type="button"
+              onClick={handleManagerSignOut}
+              className="text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Sign out
+            </button>
+          </div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             PTO Management Dashboard
           </h1>

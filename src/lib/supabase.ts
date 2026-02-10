@@ -29,13 +29,3 @@ export interface PTORequest {
   reviewed_by?: string
   employee?: Employee
 }
-
-export interface SMSLog {
-  id: string
-  from_number: string
-  to_number: string
-  message: string
-  direction: 'inbound' | 'outbound'
-  created_at: string
-}
-

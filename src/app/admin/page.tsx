@@ -1,34 +1,70 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Employee, SMSLog } from '@/lib/supabase'
+import { Employee } from '@/lib/supabase'
 
 export default function AdminPage() {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null)
+  const [adminPassword, setAdminPassword] = useState('')
+  const [adminError, setAdminError] = useState('')
+  const [adminLoading, setAdminLoading] = useState(false)
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [smsLogs, setSmsLogs] = useState<SMSLog[]>([])
   const [loading, setLoading] = useState(true)
   const [newEmployee, setNewEmployee] = useState({ name: '', phone_number: '' })
   const [managerPhone, setManagerPhone] = useState('')
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [editForm, setEditForm] = useState({ name: '', phone_number: '' })
 
+  const checkAdminAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/admin/me')
+      setSignedIn(res.ok)
+    } catch {
+      setSignedIn(false)
+    }
+  }
+
+  useEffect(() => {
+    checkAdminAuth()
+  }, [])
+
+  const handleAdminSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAdminError('')
+    setAdminLoading(true)
+    try {
+      const res = await fetch('/api/auth/admin/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword })
+      })
+      if (res.ok) {
+        setSignedIn(true)
+        setAdminPassword('')
+      } else {
+        const data = await res.json()
+        setAdminError(data.error || 'Invalid password')
+      }
+    } catch {
+      setAdminError('Something went wrong')
+    } finally {
+      setAdminLoading(false)
+    }
+  }
+
+  const handleAdminSignOut = async () => {
+    await fetch('/api/auth/admin/signout', { method: 'POST' })
+    setSignedIn(false)
+  }
+
   const fetchData = async () => {
     try {
-      // Fetch employees
       const employeesResponse = await fetch('/api/admin/employees')
       if (employeesResponse.ok) {
         const employeesData = await employeesResponse.json()
         setEmployees(employeesData.employees || [])
       }
 
-      // Fetch SMS logs
-      const smsResponse = await fetch('/api/admin/sms-logs')
-      if (smsResponse.ok) {
-        const smsData = await smsResponse.json()
-        setSmsLogs(smsData.smsLogs || [])
-      }
-
-      // Fetch manager phone
       const managerResponse = await fetch('/api/admin/manager-phone')
       if (managerResponse.ok) {
         const managerData = await managerResponse.json()
@@ -42,8 +78,8 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    if (signedIn) fetchData()
+  }, [signedIn])
 
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -173,24 +209,41 @@ export default function AdminPage() {
     }
   }
 
-  const handleClearSMSLogs = async () => {
-    if (!confirm('Are you sure you want to clear all SMS logs? This action cannot be undone.')) return
+  if (signedIn === null) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      </div>
+    )
+  }
 
-    try {
-      const response = await fetch('/api/admin/sms-logs', {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        setSmsLogs([]) // Clear the local state
-        alert('SMS logs cleared successfully')
-      } else {
-        alert('Failed to clear SMS logs')
-      }
-    } catch (error) {
-      console.error('Error clearing SMS logs:', error)
-      alert('Error clearing SMS logs')
-    }
+  if (!signedIn) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Admin sign in</h1>
+          <p className="text-gray-600 text-sm mb-6">Enter the admin password to continue.</p>
+          <form onSubmit={handleAdminSignIn} className="space-y-4">
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              className="input-field"
+              placeholder="Password"
+              required
+            />
+            {adminError && <p className="text-sm text-red-600">{adminError}</p>}
+            <button
+              type="submit"
+              disabled={adminLoading}
+              className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {adminLoading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
@@ -209,6 +262,15 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
+          <div className="flex justify-end mb-2">
+            <button
+              type="button"
+              onClick={handleAdminSignOut}
+              className="text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Sign out
+            </button>
+          </div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             Admin Configuration
           </h1>
@@ -368,47 +430,8 @@ export default function AdminPage() {
                 </button>
               </div>
               <p className="text-sm text-gray-800 mt-2">
-                This number will receive notifications for new PTO requests
+                Optional: for future notifications (e.g. new PTO requests)
               </p>
-            </div>
-
-            {/* SMS Logs */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Recent SMS Activity</h3>
-                {smsLogs.length > 0 && (
-                  <button
-                    onClick={handleClearSMSLogs}
-                    className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
-              <div className="max-h-64 overflow-y-auto space-y-2">
-                {smsLogs.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No SMS activity yet</p>
-                ) : (
-                  smsLogs.slice(0, 10).map((log) => (
-                    <div key={log.id} className="p-3 bg-gray-50 rounded-lg text-sm">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-medium">
-                            {log.direction === 'inbound' ? '📱 Incoming' : '📤 Outgoing'}
-                          </div>
-                          <div className="text-gray-800">
-                            {log.from_number} → {log.to_number}
-                          </div>
-                          <div className="text-gray-800 mt-1">{log.message}</div>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {new Date(log.created_at).toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
             </div>
           </div>
         </div>

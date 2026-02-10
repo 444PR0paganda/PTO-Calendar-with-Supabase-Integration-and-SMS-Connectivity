@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "PTO Calendar System",
-  description: "Employee PTO request management system with SMS integration",
+  description: "Employee PTO request management and calendar display",
 };
 
 export default function RootLayout({

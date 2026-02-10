@@ -14,6 +14,12 @@ export default function Navigation() {
       description: 'Main Dashboard'
     },
     {
+      name: 'Request time off',
+      href: '/request',
+      icon: '📋',
+      description: 'Employee PTO requests'
+    },
+    {
       name: 'TV Display',
       href: '/display',
       icon: '📺',
@@ -30,12 +36,6 @@ export default function Navigation() {
       href: '/admin',
       icon: '⚙️',
       description: 'Manage Employees'
-    },
-    {
-      name: 'Test SMS',
-      href: '/test-sms',
-      icon: '📱',
-      description: 'Simulate Messages'
     }
   ]
 
